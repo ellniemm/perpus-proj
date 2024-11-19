@@ -11,11 +11,15 @@ use Illuminate\Support\Facades\Session;
 
 class CartControllers extends Controller
 {
-
+    public function index()
+    {
+        $cart = session()->get('cart', []);
+        return view('cart', compact('cart'));
+    }
     public function cartDetails()
     {
         $cart = session()->get('cart', []); // Pastikan default-nya adalah array kosong
-        
+
     }
 
 
@@ -23,16 +27,16 @@ class CartControllers extends Controller
     {
         $buku = Buku::find($request->buku_id);
 
-        if (!$buku) {
+        if (!$request->has('buku_id')) {
             return response()->json(['status' => 'error', 'message' => 'Buku tidak ditemukan!']);
         }
 
         $cart = session()->get('cart', []);
 
         // Menggunakan $request->buku_id sebagai id buku
-        if (!in_array($request->buku_id, array_column($cart, 'id'))) {
+        if (!in_array($request->buku_id, array_column($cart, 'buku_id'))) {
             $cart[] = [
-                'id' => $request->buku_id,
+                'buku_id' => $request->buku_id,
                 'nama' => $buku->buku_nama,
                 'image' => $buku->buku_img,  // Menambahkan key 'image'
                 'stok' => $buku->buku_stok,
@@ -55,27 +59,39 @@ class CartControllers extends Controller
     public function removeFromCart(Request $request)
     {
         $cart = session()->get('cart', []);
-        $newCart = array_filter($cart, function ($item) use ($request) {
-            return $item['id'] != $request->buku_id;
+
+        // Filter out the item with the matching ID
+        $cart = array_filter($cart, function ($item) use ($request) {
+            return $item['id'] != $request->item_id;
         });
 
-        session()->put('cart', $newCart);
+        session()->put('cart', $cart);
 
-        return response()->json(['status' => 'success', 'message' => 'Buku berhasil dihapus dari keranjang!']);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Buku berhasil dihapus dari keranjang!',
+            'cartCount' => count($cart)
+        ]);
     }
 
-    public function updateCart(Request $request)
+    public function updateQuantity(Request $request)
     {
         $cart = session()->get('cart', []);
+
         foreach ($cart as &$item) {
-            if ($item['id'] == $request->buku_id) {
+            if ($item['id'] == $request->item_id) {
                 $item['quantity'] = $request->quantity;
             }
         }
+
         session()->put('cart', $cart);
 
-        return response()->json(['status' => 'success', 'message' => 'Quantity berhasil diperbarui!']);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Kuantitas buku berhasil diperbarui!',
+        ]);
     }
+
 
 
     public function checkout(Request $request)

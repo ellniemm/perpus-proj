@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedInteger('detail_buku_id')->nullable(false);
             $table->unsignedInteger('detail_peminjaman_id')->nullable(false);
             $table->integer('quantity')->nullable(false);
-            
+            $table->timestamps();
             
             $table->foreign('detail_buku_id')->references('buku_id')->on('buku')
             ->onDelete('cascade')->onUpdate('cascade');

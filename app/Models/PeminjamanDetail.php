@@ -11,6 +11,7 @@ class PeminjamanDetail extends Model
 
     protected $table = 'peminjaman_detail';
     protected $primaryKey = 'detail_id';
+   
     protected $fillable = ['detail_buku_id', 'detail_peminjaman_id', 'quantity'];
 
     public function peminjaman()

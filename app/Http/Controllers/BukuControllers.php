@@ -32,7 +32,6 @@ class BukuControllers extends Controller
         $user = Auth::user();
         $bukus = Buku::all();
         $cartIds = array_column($cart, 'id');
-        // $cartItems = Cart::where('user_id', $user->user_id)->pluck('buku_id')->toArray(); // Ambil semua ID buku yang ada di keranjang
         return view('pages.siswa.buku.index', compact('bukus', 'user', 'cart', 'cartIds'));
     }
     /**
@@ -40,7 +39,12 @@ class BukuControllers extends Controller
      */
     public function create()
     {
-        return view('pages.admin.buku.create');
+        $kategori = Kategori::all();
+        $penerbit = Penerbit::all();
+        $rak = Rak::all();
+        $penulis = Penulis::all();
+        $user = Auth::user();
+        return view('pages.admin.buku.create', compact('kategori', 'penerbit', 'rak', 'penulis', 'user'));
     }
 
     /**

@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Buku;
+use App\Models\Peminjaman;
+use App\Models\PeminjamanDetail;
 use App\Models\Penerbit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class PenerbitController extends Controller
 {
@@ -23,25 +27,66 @@ class PenerbitController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'penerbit_nama' => 'required|string|max:50',
-            'penerbit_desc' => 'required|string|max:150',
-        ]);
+        DB::beginTransaction();
 
-        Penerbit::create($validated);
-        return redirect()->route('adminpenerbit')->with('success', 'Data penerbit berhasil ditambahkan!');
-    }
+        try {
+            // Debugging
+            \Log::info("Mulai proses peminjaman");
 
-    public function update(Request $request, $id)
-    {
-        $validated = $request->validate([
-            'penerbit_nama' => 'required|max:50',
-            'penerbit_desc' => 'required|max:150',
-        ]);
+            // Simpan data peminjaman
+            $peminjaman = Peminjaman::create([
+                'peminjaman_user_id' => auth()->id(),
+                'peminjaman_status' => 1,
+                'peminjaman_notes' => $request->peminjaman_notes ?? null,
+            ]);
 
-        $penerbit = Penerbit::findOrFail($id);
-        $penerbit->update($validated);
+            \Log::info('Peminjaman berhasil disimpan: ' . $peminjaman->peminjaman_id);
 
-        return response()->json(['success' => 'Penerbit berhasil diperbarui']);
+            $cart = session()->get('cart', []);
+
+            foreach ($cart as $item) {
+                // Cari buku berdasarkan ID
+                $buku = Buku::find($item['id']);
+
+                // Cek apakah stok mencukupi
+                if ($buku->stok < $item['quantity']) {
+                    // Jika stok tidak cukup, rollback transaksi dan beri pesan error
+                    throw new \Exception('Stok buku tidak mencukupi untuk buku: ' . $buku->judul);
+                }
+
+                // Kurangi stok buku
+                $buku->stok -= $item['quantity'];
+                $buku->save();
+
+                // Simpan detail peminjaman
+                PeminjamanDetail::create([
+                    'detail_buku_id' => $item['id'],
+                    'detail_peminjaman_id' => $peminjaman->peminjaman_id,
+                    'quantity' => $item['quantity'],
+                ]);
+            }
+
+            // Kosongkan keranjang
+            session()->forget('cart');
+
+            // Commit transaksi
+            DB::commit();
+
+            \Log::info('Transaksi berhasil, keranjang dikosongkan.');
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Peminjaman berhasil dilakukan!',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            \Log::error('Kesalahan saat melakukan peminjaman: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan saat melakukan peminjaman: ' . $e->getMessage(),
+            ]);
+        }
     }
 }

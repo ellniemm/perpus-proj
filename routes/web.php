@@ -115,12 +115,14 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/cart', [CartControllers::class, 'index'])->name('cart.index');
         Route::get('/cart/details', [CartControllers::class, 'cartDetails'])->name('cart.details');
         Route::post('/cart/remove', [CartControllers::class, 'removeFromCart'])->name('cart.remove');
-        Route::post('/cart/update', [CartControllers::class, 'updateCart'])->name('cart.update');
-        Route::post('/cart/checkout', [CartControllers::class, 'checkout'])->name('cart.checkout');
+        Route::post('/cart/update', [CartControllers::class, 'updateQuantity'])->name('cart.update');
+        Route::post('/peminjaman', [PeminjamanControllers::class, 'store'])->name('peminjaman.store');
+        Route::get('peminjaman/detail/{id}', [PeminjamanControllers::class, 'show'])->name('peminjaman.detail');
+
     });
 });
 
-
+Route::post('/createpenerbit', [PenerbitController::class, 'create'])->name('action.createpenerbit');
 
 
 

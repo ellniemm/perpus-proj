@@ -1,11 +1,11 @@
-@extends('pages.layouts.admin')
-@extends('pages.components.admin.navbar')
+@extends('pages.layouts.siswa')
+@extends('pages.components.siswa.navbar')
 
-@section('title', 'Profile - Admin')
+@section('title', 'Profile - Siswa')
 
 @section('main')
-    <div class="container">
-        <h2>Profil Saya</h2>
+    <div class="container mt-5">
+        <h2 class="fw-bolder text-center">Profil Saya</h2>
 
         @if (session('status'))
             <div class="alert alert-success">
