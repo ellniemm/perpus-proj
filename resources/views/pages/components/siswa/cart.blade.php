@@ -11,7 +11,7 @@
                     <!-- Isi detail keranjang akan dimuat secara dinamis -->
                     @if (is_array($cart) && count($cart) > 0)
                         @foreach ($cart as $item)
-                            <div class="card mb-3" id="cart-item-{{ $item['id'] }}">
+                            <div class="card mb-3" id="cart-item-{{ $item['buku_id'] }}">
                                 <div class="row g-0">
                                     <div class="col-md-2">
                                         <img src="{{ asset('images/' . $item['image']) }}"
@@ -23,10 +23,10 @@
                                             <p class="card-text">Stok: {{ $item['stok'] }}</p>
                                             <div class="d-flex align-items-center">
                                                 <input type="number" class="form-control w-25 me-3 update-quantity"
-                                                    data-id="{{ $item['id'] }}" value="{{ $item['quantity'] }}"
+                                                    data-id="{{ $item['buku_id'] }}" value="{{ $item['quantity'] }}"
                                                     min="1">
                                                 <button class="btn btn-danger me-2 btn-delete"
-                                                    data-id="{{ $item['id'] }}">Hapus</button>
+                                                    data-id="{{ $item['buku_id'] }}">Hapus</button>
                                             </div>
                                         </div>
                                     </div>
@@ -39,8 +39,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                <button type="button" class="btn btn-primary">Lanjutkan ke Pembayaran</button>
+                <button type="button" class="btn custom-button" id="submit-peminjaman">Pinjam Buku</button>
             </div>
         </div>
     </div>
@@ -61,17 +60,100 @@
             });
         });
 
-        // Script untuk menghapus item dari keranjang
+        // Hapus item dari keranjang
         $(document).on('click', '.btn-delete', function() {
             var itemId = $(this).data('id');
-            // Implementasi logika penghapusan item dari keranjang
+
+            $.ajax({
+                url: "{{ route('cart.remove') }}",
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    item_id: itemId
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        $('#cart-item-' + itemId).remove();
+                        alert(response.message);
+                        $('.cart-count').text(response.cartCount);
+                    } else {
+                        alert('Gagal menghapus item.');
+                    }
+                },
+                error: function() {
+                    alert('Terjadi kesalahan saat menghapus item.');
+                }
+            });
         });
 
-        // Script untuk mengubah kuantitas item di keranjang
+        // Update kuantitas item di keranjang
         $(document).on('change', '.update-quantity', function() {
             var itemId = $(this).data('id');
             var newQuantity = $(this).val();
-            // Implementasi logika pengubahan kuantitas item
+
+            $.ajax({
+                url: "{{ route('cart.update') }}",
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    item_id: itemId,
+                    quantity: newQuantity
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+
+                    } else {
+                        alert('Gagal memperbarui kuantitas.');
+                    }
+                },
+                error: function() {
+                    alert('Terjadi kesalahan saat memperbarui kuantitas.');
+                }
+            });
         });
+    });
+
+    document.getElementById('submit-peminjaman').addEventListener('click', function() {
+        const cartItems = [];
+        document.querySelectorAll('#cart-items .card').forEach(card => {
+            const bukuId = card.querySelector('.update-quantity').getAttribute('data-id');
+            const quantity = card.querySelector('.update-quantity').value;
+
+            cartItems.push({
+                buku_id: bukuId,
+                quantity: parseInt(quantity, 10),
+            });
+        });
+
+        // Kirim data keranjang ke server
+        fetch('/siswa/peminjaman', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                        'content'),
+                },
+                body: JSON.stringify({
+                    cart: cartItems
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+
+                    // Hapus isi keranjang di frontend
+                    const cartContainer = document.getElementById('cart-items');
+                    cartContainer.innerHTML = '<p class="text-center">Keranjang kosong.</p>';
+
+                    location.reload(); // Muat ulang halaman jika diperlukan
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat memproses peminjaman.');
+            });
     });
 </script>

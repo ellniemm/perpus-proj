@@ -15,8 +15,9 @@ return new class extends Migration
             $table->increments('peminjaman_id')->primary();
             $table->unsignedInteger('peminjaman_user_id')->nullable(false);
             $table->boolean('peminjaman_status')->nullable(false);
-            $table->string('peminjaman_notes')->nullable(false);
-            
+            $table->string('peminjaman_notes')->nullable(true);
+            $table->timestamps();
+
             $table->foreign('peminjaman_user_id')->references('user_id')->on('users')
             ->onDelete('cascade')->onUpdate('cascade');
             

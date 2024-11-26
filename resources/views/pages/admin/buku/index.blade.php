@@ -66,9 +66,19 @@
                                     <td class="text-center">{{ $buku->buku_stok }}</td>
                                     <td>{{ $buku->buku_deskripsi }}</td>
                                     <td>
-                                        <div class="flex justify-center-item">
-                                            <button type="button" class="btn btn-warning edit-btn"
+                                        <div class="flex justify-center-item row">
+                                            <div class="col">
+                                                <button type="button" class="btn btn-warning edit-btn"
                                                 data-id="{{ $buku->buku_id }}">Edit</button>
+                                            </div>
+                                            <div class="col">
+                                                <form action="{{ route('adminBukuDelete', $buku->buku_id) }}"
+                                                    method="POST">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                                </form>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>

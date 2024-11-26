@@ -11,11 +11,12 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @yield('style')
     @livewireStyles
     <style>
         body {
-            padding-top: 56px;
+            padding-top: 60px;
             /* Tinggi navbar */
         }
 
