@@ -90,70 +90,7 @@
         $(document).on('change', '.update-quantity', function() {
             var itemId = $(this).data('id');
             var newQuantity = $(this).val();
-
-            $.ajax({
-                url: "{{ route('cart.update') }}",
-                method: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    item_id: itemId,
-                    quantity: newQuantity
-                },
-                success: function(response) {
-                    if (response.status === 'success') {
-
-                    } else {
-                        alert('Gagal memperbarui kuantitas.');
-                    }
-                },
-                error: function() {
-                    alert('Terjadi kesalahan saat memperbarui kuantitas.');
-                }
-            });
+            // Implementasi logika pengubahan kuantitas item
         });
-    });
-
-    document.getElementById('submit-peminjaman').addEventListener('click', function() {
-        const cartItems = [];
-        document.querySelectorAll('#cart-items .card').forEach(card => {
-            const bukuId = card.querySelector('.update-quantity').getAttribute('data-id');
-            const quantity = card.querySelector('.update-quantity').value;
-
-            cartItems.push({
-                buku_id: bukuId,
-                quantity: parseInt(quantity, 10),
-            });
-        });
-
-        // Kirim data keranjang ke server
-        fetch('/siswa/peminjaman', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                        'content'),
-                },
-                body: JSON.stringify({
-                    cart: cartItems
-                }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
-
-                    // Hapus isi keranjang di frontend
-                    const cartContainer = document.getElementById('cart-items');
-                    cartContainer.innerHTML = '<p class="text-center">Keranjang kosong.</p>';
-
-                    location.reload(); // Muat ulang halaman jika diperlukan
-                } else {
-                    alert(data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan saat memproses peminjaman.');
-            });
     });
 </script>

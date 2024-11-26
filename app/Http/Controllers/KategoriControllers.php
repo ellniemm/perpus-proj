@@ -21,7 +21,7 @@ class KategoriControllers extends Controller
             'kategori_nama' => 'required|max:50',
             'kategori_desc' => 'required|max:150',
         ]);
-        $kategoris = Kategori::create($validated);
+        Kategori::create($validated);
         return redirect()->route('adminkategori')->with('success', 'Data kategori berhasil ditambahkan!');
     }
 

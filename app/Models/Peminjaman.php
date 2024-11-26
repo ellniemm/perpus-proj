@@ -11,7 +11,6 @@ class Peminjaman extends Model
 
     protected $table = 'peminjaman';
     protected $primaryKey = 'peminjaman_id';
-
     protected $fillable = ['peminjaman_user_id', 'peminjaman_status', 'peminjaman_notes'];
 
     public function user()

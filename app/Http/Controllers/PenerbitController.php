@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Buku;
+use App\Models\Peminjaman;
+use App\Models\PeminjamanDetail;
 use App\Models\Penerbit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class PenerbitController extends Controller
 {
@@ -23,21 +27,25 @@ class PenerbitController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi input dari request
         $validated = $request->validate([
-            'penerbit_nama' => 'required|string|max:50', // Nama penerbit maksimal 50 karakter
-            'penerbit_desc' => 'required|string|max:150', // Deskripsi penerbit maksimal 150 karakter
+            'penerbit_nama' => 'required|string|max:50',
+            'penerbit_desc' => 'required|string|max:150',
         ]);
 
-        try {
-            // Simpan data penerbit ke database
-            Penerbit::create($validated);
+        Penerbit::create($validated);
+        return redirect()->route('adminpenerbit')->with('success', 'Data penerbit berhasil ditambahkan!');
+    }
 
-            // Redirect dengan pesan sukses
-            return redirect()->route('adminpenerbit')->with('success', 'Penerbit berhasil ditambahkan!');
-        } catch (\Exception $e) {
-            // Redirect dengan pesan error jika terjadi kesalahan
-            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
-        }
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'penerbit_nama' => 'required|max:50',
+            'penerbit_desc' => 'required|max:150',
+        ]);
+
+        $penerbit = Penerbit::findOrFail($id);
+        $penerbit->update($validated);
+
+        return response()->json(['success' => 'Penerbit berhasil diperbarui']);
     }
 }

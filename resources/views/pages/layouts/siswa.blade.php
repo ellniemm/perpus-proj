@@ -41,7 +41,7 @@
         .card-img-top {
             width: 100%;
             /* Full width of the card */
-            padding-top: 66.67%;
+            padding-top: 66.67%; 
             /* Aspect ratio 1.5:1 (height = 1.5 / 1 = 66.67%) */
             position: relative;
             overflow: hidden;
@@ -139,7 +139,7 @@
 
 <body>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    @yield('main')
+    @yield('main') 
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
